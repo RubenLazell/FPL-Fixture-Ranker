@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPL 2024/25 Fixture Difficulty Rankings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        h1 {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 16px;
+        }
+    </style>
+    <script>
+        function clearGameweek() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+        }
+    </script>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">Rank Teams</a>
+        <a href="/graphs">View Graphs</a>
+    </div>
+    <h1>FPL 2024/25 Fixture Difficulty Rankings</h1>
+    <div class="content">
+        <form method="POST" action="/select_gameweek">
+            <label for="gameweek">Select Gameweek:</label>
+            <select name="gameweek" id="gameweek" onchange="this.form.submit()">
+                <option value="GW1" {% if selected_gw == 'GW1' %}selected{% endif %}>Gameweek 1</option>
+                <option value="GW2" {% if selected_gw == 'GW2' %}selected{% endif %}>Gameweek 2</option>
+                <option value="GW3" {% if selected_gw == 'GW3' %}selected{% endif %}>Gameweek 3</option>
+                <option value="GW4" {% if selected_gw == 'GW4' %}selected{% endif %}>Gameweek 4</option>
+                <option value="GW5" {% if selected_gw == 'GW5' %}selected{% endif %}>Gameweek 5</option>
+            </select>
+        </form>
+
+        <form method="POST" action="/save_gameweek">
+            <input type="hidden" name="gameweek" value="{{ selected_gw }}">
+            <table>
+                <tr>
+                    <th>Team</th>
+                    <th>Opponent</th>
+                    <th>Location</th>
+                    <th>Date/Time</th>
+                    <th>Attack Rating (1-5) (1 is an easy attacking fixtures, 5 is a very difficult attacking fixture)</th>
+                    <th>Defense Rating (1-5) (1 is an easy defensive fixtures, 5 is a very difficult fixture defensively)</th>
+                </tr>
+                {% for team, info in fixtures.items() %}
+                <tr>
+                    <td>{{ team }}</td>
+                    <td>{{ info.opponent }}</td>
+                    <td>{{ info.location }}</td>
+                    <td>{{ info.datetime }}</td>
+                    <td><input type="number" name="{{ team }}_attack" min="1" max="5" value="{{ rankings.get(team, {}).get('attack', '') }}" required></td>
+                    <td><input type="number" name="{{ team }}_defense" min="1" max="5" value="{{ rankings.get(team, {}).get('defense', '') }}" required></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <button class="button" type="submit">Save Gameweek</button>
+        </form>
+
+        <button class="button" onclick="clearGameweek()">Clear Gameweek</button>
+
+        <form method="POST" action="/submit_rankings">
+            <input type="hidden" name="gameweek" value="{{ selected_gw }}">
+            <button class="button" type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
